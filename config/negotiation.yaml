@@ -1,0 +1,20 @@
+# Agent Negotiation System Configuration
+
+domain:
+  name: "SaaS License Negotiation"
+  version: "1.0"
+
+pricing:
+  product_id: "enterprise-license"
+  base_price: 500.0
+  min_price: 350.0
+  max_discount_percent: 30.0
+
+agents:
+  buyer_max_price: 450.0
+  seller_min_price: 350.0
+  seller_asking_price: 500.0
+
+limits:
+  max_turns: 10
+  timeout_seconds: 300
