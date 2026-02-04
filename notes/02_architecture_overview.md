@@ -28,8 +28,8 @@ Give learners the map before the territory. Before diving into any single layer,
 │   │  "How does it run?" - THE SHELL, lifecycle, config                      │   │
 │   │                                                                         │   │
 │   │   ┌─────────────────────────────────────────────────────────────────┐   │   │
-│   │   │  07_coordination (ACP)                                           │   │   │
-│   │   │  "What's allowed?" - Policy, governance, permissions            │   │   │
+│   │   │  07_coordination (ACP Policy)                                    │   │   │
+│   │   │  "What's allowed?" - Governance layer of ACP                   │   │   │
 │   │   │                                                                 │   │   │
 │   │   │   ┌─────────────────────────────────────────────────────────┐   │   │   │
 │   │   │   │  06_orchestration (LangGraph)                            │   │   │   │

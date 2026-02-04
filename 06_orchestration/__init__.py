@@ -1,11 +1,17 @@
 """
-06_ORCHESTRATION - LangGraph Control Flow Layer
-=============================================
+06_ORCHESTRATION - ACP Workflow Layer (via LangGraph)
+=====================================================
 
 Question this layer answers:
 "What runs next?"
 
-This is the heart of agent behavior.
+This module implements the ORCHESTRATION aspect of IBM's Agent Communication
+Protocol (ACP) using LangGraph. Together with 07_coordination (governance),
+this forms our ACP implementation.
+
+ACP has two parts in this project:
+- 06_orchestration = ACP workflow orchestration (this module, via LangGraph)
+- 07_coordination = ACP governance/policy
 
 LangGraph controls:
 - Buyer → Seller → Buyer

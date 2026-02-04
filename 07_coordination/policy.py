@@ -1,15 +1,16 @@
 """
-Coordination Policy (ACP)
-=========================
+ACP Governance Layer - Coordination Policy
+==========================================
 
-Explicit governance code that defines what actions are allowed.
+This module implements the GOVERNANCE aspect of IBM's Agent Communication
+Protocol (ACP). Explicit governance code that defines what actions are allowed.
 
-This is NOT orchestration (who runs when).
+This is NOT orchestration (who runs when) - see 06_orchestration for that.
 This is NOT the FSM (termination).
 This is NOT protocol (message validation).
 
 This IS:
-- Domain-specific rules
+- Domain-specific policy rules (ACP governance)
 - Explicit, testable code
 - Separate from execution flow
 - The "business rules" of negotiation

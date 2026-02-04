@@ -1,8 +1,12 @@
-# 07 - Coordination & Governance (ACP)
+# 07 - Coordination & Governance (ACP - Policy Layer)
 
 ## Purpose
 
-Introduce policy as first-class code. Orchestration decides what runs next; coordination decides what's allowed.
+Introduce policy as first-class code. This module implements the **governance aspect** of IBM's Agent Communication Protocol (ACP). While orchestration (06) handles workflow execution, coordination handles what's allowed.
+
+> **Note on Protocols:** ACP encompasses both orchestration AND governance. In this project:
+> - `06_orchestration/` = ACP's workflow orchestration (implemented via LangGraph)
+> - `07_coordination/` = ACP's policy & governance layer
 
 ---
 
@@ -37,14 +41,16 @@ Consider this scenario:
 
 ---
 
-## Agent Communication Protocol (ACP)
+## Agent Communication Protocol (ACP) - Governance Layer
 
-ACP is a governance framework that defines:
+ACP (IBM/BeeAI) is a protocol for workflow orchestration, task delegation, and stateful sessions. This module implements the **governance/policy** aspect of ACP:
 
 1. **Who** can participate
 2. **What** actions are allowed per state
 3. **When** actions can happen (turn-taking)
 4. **How** violations are handled
+
+> **Full ACP** = Orchestration (`06_orchestration/`) + Governance (`07_coordination/`)
 
 ### ACP Components
 
@@ -371,9 +377,9 @@ These three concepts are often confused:
 
 ---
 
-## Mental Model: ACP Is the Constitution
+## Mental Model: ACP Governance Is the Constitution
 
-> **"ACP is the constitution of the agent system."**
+> **"ACP's governance layer is the constitution of the agent system."**
 
 Just like a constitution:
 - Defines who can participate
@@ -435,9 +441,11 @@ def create_negotiation_graph(policy: CoordinationPolicy):
 
 ## Key Takeaway
 
-> **Orchestration is traffic direction. Coordination is law enforcement.**
+> **Orchestration is traffic direction. Governance is law enforcement.**
 >
-> Without coordination policy, agents could cheat, spam, or violate protocol. ACP ensures that even if agent logic is buggy, the system maintains integrity.
+> Without ACP governance, agents could cheat, spam, or violate protocol. The coordination policy ensures that even if agent logic is buggy, the system maintains integrity.
+>
+> **Remember:** Full ACP = `06_orchestration` (workflow) + `07_coordination` (governance)
 
 ---
 

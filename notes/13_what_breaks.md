@@ -19,7 +19,7 @@ Every layer in this system exists because something BREAKS without it. Not "migh
 | Remove This | What Breaks | Failure Mode |
 |-------------|-------------|--------------|
 | **FSM** | Infinite loops | System never terminates |
-| **Coordination (ACP)** | Illegal actions | Agents cheat, spam, corrupt state |
+| **Coordination (ACP Policy)** | Illegal actions | Agents cheat, spam, corrupt state |
 | **Protocol** | Ambiguous messages | Misinterpretation, silent failures |
 | **Transport** | No distribution | Can't scale, can't separate |
 | **MCP** | Hallucination | Agents make up data |
@@ -88,14 +88,14 @@ while fsm.is_active:  # GUARANTEED to become False
 
 ---
 
-## 2. No ACP → Illegal Actions
+## 2. No ACP Policy → Illegal Actions
 
-### What ACP Does
+### What ACP Governance Does
 - Enforces turn-taking
 - Limits allowed actions per role
 - Validates action parameters
 
-### Without ACP
+### Without ACP Policy
 
 ```python
 # No coordination policy
@@ -121,10 +121,10 @@ State: CORRUPTED
 Trust: ZERO
 ```
 
-### The Fix (ACP)
+### The Fix (ACP Policy)
 
 ```python
-# With coordination policy
+# With ACP governance (coordination policy)
 violation = policy.validate_action(
     agent="buyer",
     action="offer",

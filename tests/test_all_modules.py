@@ -134,17 +134,28 @@ def test_07_coordination():
 
 
 def test_08_transport():
-    """Test message transport."""
-    print('Testing 08_transport...')
+    """Test A2A message transport."""
+    print('Testing 08_transport (A2A)...')
     transport = import_layer('08_transport')
     
-    channel = transport.LocalChannel()
+    # Test with new A2A Channel
+    channel = transport.A2AChannel()
     
-    # Create a message
-    msg = transport.Message(
+    # Register agents with Agent Cards (A2A discovery)
+    channel.register_agent(transport.BUYER_CARD)
+    channel.register_agent(transport.SELLER_CARD)
+    
+    # Test A2A discovery
+    acceptors = channel.discover_agents('accept')
+    print(f'  Agents with "accept" capability: {[a.agent_id for a in acceptors]}')
+    
+    # Create an A2A message
+    msg = transport.A2AMessage(
         sender='buyer',
         recipient='seller',
-        payload={'type': 'offer', 'price': 300}
+        task_id='negotiation_001',
+        message_type='offer',
+        content={'price': 300, 'currency': 'USD'}
     )
     
     # Track received messages
@@ -157,11 +168,27 @@ def test_08_transport():
     channel.send(msg)
     
     print(f'  Sent message ID: {msg.id}')
+    print(f'  Task ID: {msg.task_id}')
     print(f'  Messages received by seller: {len(received_messages)}')
     if received_messages:
-        print(f'  Payload: {received_messages[0].payload}')
+        print(f'  Content: {received_messages[0].content}')
     
-    print('  ✓ 08_transport PASSED')
+    # Test task history (A2A state tracking)
+    history = channel.get_task_history('negotiation_001')
+    print(f'  Task history length: {len(history)}')
+    
+    # Test legacy LocalChannel still works
+    legacy_channel = transport.LocalChannel()
+    legacy_msg = transport.Message(
+        sender='buyer',
+        recipient='seller',
+        message_type='offer',
+        content={'price': 350}
+    )
+    legacy_channel.send(legacy_msg)
+    print('  Legacy LocalChannel: OK')
+    
+    print('  ✓ 08_transport (A2A) PASSED')
 
 
 def test_09_context():

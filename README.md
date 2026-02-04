@@ -40,6 +40,23 @@ This IS a **stateful, multi-agent, policy-governed, observable system**.
 
 Everything in this codebase exists because something breaks without it.
 
+### Agent Communication Protocols
+
+This project implements the three major agent communication protocols:
+
+| Protocol | Source | Purpose | Our Module |
+|----------|--------|---------|------------|
+| **MCP** | Anthropic | Connect agents to tools & data ("USB port") | `09_context/` |
+| **A2A** | Google | Agent discovery & inter-agent messaging ("meeting rooms") | `08_transport/` |
+| **ACP** | IBM/BeeAI | Workflow orchestration & governance ("project manager") | `06_orchestration/` + `07_coordination/` |
+
+> 📖 **Further Reading:** [Agentic AI Protocols: MCP, A2A, and ACP](https://medium.com/@manavg/agentic-ai-protocols-mcp-a2a-and-acp-ea0200eac18b) - Excellent overview of how these protocols complement each other.
+>
+> **Official Documentation:**
+> - [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) - Anthropic
+> - [A2A (Agent-to-Agent Protocol)](https://google.github.io/A2A/) - Google
+> - [ACP (Agent Communication Protocol)](https://github.com/i-am-bee/ACP) - IBM/BeeAI
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         AGENT NEGOTIATION SYSTEM                            │
@@ -57,9 +74,9 @@ Everything in this codebase exists because something breaks without it.
 │                                                                             │
 │  06_ORCHESTRATION│  LangGraph - "What runs next?"                           │
 │                                                                             │
-│  07_COORDINATION │  ACP - "Who is allowed to speak, and when?"              │
+│  07_COORDINATION │  ACP (Policy) - "Who is allowed to speak, and when?"    │
 │                                                                             │
-│  08_TRANSPORT    │  Channels - "How does a message get from A to B?"        │
+│  08_TRANSPORT    │  A2A - "How do agents discover and talk to each other?" │
 │                                                                             │
 │  09_CONTEXT      │  MCP - "What is objectively true?"                       │
 │                                                                             │
@@ -80,8 +97,8 @@ Everything in this codebase exists because something breaks without it.
 | 04 | `04_fsm/` | Termination Guarantees | [04_fsm_termination.md](notes/04_fsm_termination.md) |
 | 05 | `05_agents/` | Strategy & Decisions | [05_agents_strategies.md](notes/05_agents_strategies.md) |
 | 06 | `06_orchestration/` | LangGraph - Control Flow | [06_orchestration_langgraph.md](notes/06_orchestration_langgraph.md) |
-| 07 | `07_coordination/` | ACP - Policy & Rules | [07_coordination_acp.md](notes/07_coordination_acp.md) |
-| 08 | `08_transport/` | Message Delivery | [08_transport.md](notes/08_transport.md) |
+| 07 | `07_coordination/` | ACP (Policy) - Governance | [07_coordination_acp.md](notes/07_coordination_acp.md) |
+| 08 | `08_transport/` | A2A - Agent Communication | [08_transport.md](notes/08_transport.md) |
 | 09 | `09_context/` | MCP - Grounded Context | [09_mcp_context.md](notes/09_mcp_context.md) |
 | 10 | `10_runtime/` | Google ADK - THE SHELL | [10_runtime_adk.md](notes/10_runtime_adk.md) |
 | 11 | `11_evaluation/` | LangSmith - Tracing & Scoring | [11_langsmith_evaluation.md](notes/11_langsmith_evaluation.md) |
@@ -163,10 +180,10 @@ agent_negotiation_system/
 ├── 06_orchestration/   # LangGraph - control flow
 │   ├── graph.py        # Negotiation graph
 │   └── state.py        # State definitions
-├── 07_coordination/    # ACP - Policy & governance rules
+├── 07_coordination/    # ACP (Policy) - governance rules
 │   └── policy.py       # Coordination policy
-├── 08_transport/       # Channels - message delivery
-│   └── local_channel.py
+├── 08_transport/       # A2A - agent-to-agent communication
+│   └── channel.py      # Agent communication channel
 ├── 09_context/         # MCP - grounded context
 │   └── server.py       # MCP server implementation
 ├── 10_runtime/         # Google ADK - THE SHELL (entrypoint)

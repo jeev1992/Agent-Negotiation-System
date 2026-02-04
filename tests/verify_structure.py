@@ -4,15 +4,15 @@ Project Structure Verification
 Run this script to verify all modules import correctly.
 
 Usage:
-    python verify_structure.py
+    python tests/verify_structure.py
 """
 
 import sys
 import importlib.util
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent
+# Add project root to path (parent of tests/)
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 
@@ -37,13 +37,13 @@ def check_imports():
     
     layers = [
         ("01_baseline", ["run_naive_negotiation"]),
-        ("02_architecture", ["ARCHITECTURE_OVERVIEW", "LAYER_RESPONSIBILITIES"]),
-        ("03_protocol", ["NegotiationMessage", "MessageType"]),
+        ("02_architecture", []),  # Documentation only, no exports required
+        ("03_protocol", ["NegotiationMessage", "Offer", "Counter", "Accept", "Reject"]),
         ("04_fsm", ["NegotiationFSM", "FSMState"]),
         ("05_agents", ["BuyerStrategy", "SellerStrategy"]),
         ("06_orchestration", ["NegotiationGraph", "NegotiationState"]),
         ("07_coordination", ["CoordinationPolicy", "PolicyViolation"]),
-        ("08_transport", ["LocalChannel", "Message"]),
+        ("08_transport", ["LocalChannel", "Message", "A2AChannel", "AgentCard"]),
         ("09_context", ["MCPServer", "get_market_context"]),
         ("10_runtime", ["RuntimeConfig", "NegotiationRuntime"]),
         ("11_evaluation", ["JudgeAgent", "NegotiationScore"]),

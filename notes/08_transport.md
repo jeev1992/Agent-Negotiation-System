@@ -1,8 +1,261 @@
-# 08 - Transport & Distribution
+# 08 - Transport & Distribution (A2A)
 
 ## Purpose
 
-Clarify the difference between communication infrastructure and business logic. Transport moves messages; it doesn't decide meaning.
+Clarify the difference between communication infrastructure and business logic. This module implements concepts from Google's **Agent-to-Agent (A2A) Protocol** — the standard for agent discovery and inter-agent communication.
+
+> **A2A** handles how agents discover each other, advertise capabilities, and exchange messages. Transport moves messages; it doesn't decide meaning.
+
+### A2A Key Concepts
+
+| A2A Concept | Description | Our Implementation |
+|-------------|-------------|--------------------|
+| **Agent Cards** | Capability advertisement | `AgentCard` dataclass |
+| **Discovery** | Finding other agents | `discover_agents()` method |
+| **Messaging** | Standardized format | `A2AMessage` dataclass |
+| **Task State** | Tracking interactions | `task_id` and `state` fields |
+
+---
+
+## A2A Implementation
+
+### Agent Cards (Capability Advertisement)
+
+In A2A, each agent publishes an "Agent Card" describing what it can do:
+
+```python
+# 08_transport/a2a.py
+
+from dataclasses import dataclass, field
+from typing import List, Dict, Any, Optional
+from enum import Enum
+
+
+@dataclass
+class AgentCard:
+    """
+    A2A Agent Card - describes an agent's capabilities.
+    
+    In production A2A, this would be served via HTTP at a well-known URL.
+    Here we use a simplified in-memory registry.
+    """
+    agent_id: str
+    name: str
+    description: str
+    capabilities: List[str]  # What this agent can do
+    endpoint: str            # How to reach this agent
+    version: str = "1.0"
+    
+    # A2A-specific fields
+    supported_message_types: List[str] = field(default_factory=list)
+    authentication_required: bool = False
+
+
+# Example Agent Cards for our negotiation system
+BUYER_CARD = AgentCard(
+    agent_id="buyer",
+    name="Buyer Agent",
+    description="Negotiates to purchase items at best price",
+    capabilities=["make_offer", "accept", "reject", "counter"],
+    endpoint="local://buyer",
+    supported_message_types=["offer", "counter", "accept", "reject"],
+)
+
+SELLER_CARD = AgentCard(
+    agent_id="seller", 
+    name="Seller Agent",
+    description="Negotiates to sell items at best price",
+    capabilities=["counter", "accept", "reject"],
+    endpoint="local://seller",
+    supported_message_types=["offer", "counter", "accept", "reject"],
+)
+```
+
+### Agent Discovery
+
+A2A allows agents to discover each other by capability:
+
+```python
+class A2ARegistry:
+    """
+    Agent registry for A2A discovery.
+    
+    In production, this would be a distributed service.
+    """
+    
+    def __init__(self):
+        self._agents: Dict[str, AgentCard] = {}
+    
+    def register(self, card: AgentCard) -> None:
+        """Register an agent's capabilities."""
+        self._agents[card.agent_id] = card
+    
+    def discover(self, capability: str) -> List[AgentCard]:
+        """Find agents with a specific capability."""
+        return [
+            card for card in self._agents.values()
+            if capability in card.capabilities
+        ]
+    
+    def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+        """Get a specific agent's card."""
+        return self._agents.get(agent_id)
+    
+    def list_all(self) -> List[AgentCard]:
+        """List all registered agents."""
+        return list(self._agents.values())
+
+
+# Usage
+registry = A2ARegistry()
+registry.register(BUYER_CARD)
+registry.register(SELLER_CARD)
+
+# Find agents that can accept offers
+acceptors = registry.discover("accept")
+# Returns: [BUYER_CARD, SELLER_CARD]
+```
+
+### A2A Message Format
+
+A2A defines a standard message structure:
+
+```python
+class TaskState(Enum):
+    """A2A task states."""
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELED = "canceled"
+
+
+@dataclass
+class A2AMessage:
+    """
+    A2A-compliant message format.
+    
+    Follows Google's A2A specification for inter-agent communication.
+    """
+    # Core A2A fields
+    id: str
+    sender: str
+    recipient: str
+    task_id: str              # Groups related messages
+    
+    # Payload
+    message_type: str         # "offer", "counter", "accept", etc.
+    content: Dict[str, Any]
+    
+    # A2A metadata
+    state: TaskState = TaskState.IN_PROGRESS
+    parent_message_id: Optional[str] = None  # For threading
+    requires_response: bool = True
+    
+    # Timestamps
+    created_at: str = ""
+    expires_at: Optional[str] = None
+
+
+# Example: Creating an A2A offer message
+def create_offer_message(
+    sender: str,
+    recipient: str,
+    task_id: str,
+    price: float,
+) -> A2AMessage:
+    """Create an A2A-compliant offer message."""
+    from uuid import uuid4
+    from datetime import datetime
+    
+    return A2AMessage(
+        id=str(uuid4()),
+        sender=sender,
+        recipient=recipient,
+        task_id=task_id,
+        message_type="offer",
+        content={"price": price, "currency": "USD"},
+        state=TaskState.IN_PROGRESS,
+        requires_response=True,
+        created_at=datetime.utcnow().isoformat(),
+    )
+```
+
+### A2A Channel (Full Implementation)
+
+```python
+class A2AChannel:
+    """
+    A2A-compliant communication channel.
+    
+    Combines agent discovery with message delivery.
+    """
+    
+    def __init__(self):
+        self.registry = A2ARegistry()
+        self._messages: Dict[str, List[A2AMessage]] = {}  # Per-agent inbox
+        self._tasks: Dict[str, List[A2AMessage]] = {}     # Task history
+    
+    def register_agent(self, card: AgentCard) -> None:
+        """Register an agent with its capabilities."""
+        self.registry.register(card)
+        self._messages[card.agent_id] = []
+    
+    def discover_agents(self, capability: str) -> List[AgentCard]:
+        """A2A discovery: find agents by capability."""
+        return self.registry.discover(capability)
+    
+    def send(self, message: A2AMessage) -> None:
+        """Send an A2A message."""
+        # Verify recipient exists
+        if message.recipient not in self._messages:
+            raise ValueError(f"Unknown agent: {message.recipient}")
+        
+        # Deliver to recipient's inbox
+        self._messages[message.recipient].append(message)
+        
+        # Track in task history
+        if message.task_id not in self._tasks:
+            self._tasks[message.task_id] = []
+        self._tasks[message.task_id].append(message)
+    
+    def receive(self, agent_id: str) -> Optional[A2AMessage]:
+        """Receive next message for an agent."""
+        inbox = self._messages.get(agent_id, [])
+        return inbox.pop(0) if inbox else None
+    
+    def get_task_history(self, task_id: str) -> List[A2AMessage]:
+        """Get all messages for a task (A2A state tracking)."""
+        return self._tasks.get(task_id, [])
+    
+    def update_task_state(self, task_id: str, state: TaskState) -> None:
+        """Update the state of a task."""
+        if task_id in self._tasks and self._tasks[task_id]:
+            # Update latest message state
+            self._tasks[task_id][-1].state = state
+
+
+# Usage example
+channel = A2AChannel()
+channel.register_agent(BUYER_CARD)
+channel.register_agent(SELLER_CARD)
+
+# Buyer discovers who can accept offers
+sellers = channel.discover_agents("accept")
+
+# Create and send offer
+offer = create_offer_message(
+    sender="buyer",
+    recipient="seller",
+    task_id="negotiation_001",
+    price=350.0,
+)
+channel.send(offer)
+
+# Seller receives
+msg = channel.receive("seller")
+print(f"Received {msg.message_type}: ${msg.content['price']}")
+```
 
 ---
 

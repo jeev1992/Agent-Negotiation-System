@@ -1,6 +1,6 @@
 """
-Tests for Coordination Policy (ACP)
-===================================
+Tests for ACP Governance Layer (Coordination Policy)
+=====================================================
 """
 
 import pytest

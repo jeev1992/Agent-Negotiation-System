@@ -1,13 +1,19 @@
 """
-07_COORDINATION - Agent Coordination Policy (ACP)
-================================================
+07_COORDINATION - ACP Governance Layer
+======================================
 
 Question this layer answers:
 "Who is allowed to speak, and when?"
 
-This is where ACP (coordination policy) lives.
+This module implements the GOVERNANCE aspect of IBM's Agent Communication
+Protocol (ACP). Together with 06_orchestration (workflow), this forms our
+ACP implementation.
 
-What it enforces:
+ACP has two parts in this project:
+- 06_orchestration = ACP workflow orchestration (via LangGraph)
+- 07_coordination = ACP governance/policy (this module)
+
+What this layer enforces:
 - Turn-taking
 - Allowed message types
 - Max concessions

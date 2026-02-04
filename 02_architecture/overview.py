@@ -23,11 +23,11 @@ LAYER_MAP = """
 │                                                                             │
 │  05_AGENTS       │  Strategies - "What does each agent decide?"             │
 │                                                                             │
-│  06_ORCHESTRATION│  LangGraph - "What runs next?"                           │
+│  06_ORCHESTRATION│  LangGraph (ACP Orchestration) - "What runs next?"       │
 │                                                                             │
-│  07_COORDINATION │  ACP - "Who is allowed to speak, and when?"              │
+│  07_COORDINATION │  ACP (Policy) - "Who is allowed to speak, and when?"    │
 │                                                                             │
-│  08_TRANSPORT    │  Channels - "How does a message get from A to B?"        │
+│  08_TRANSPORT    │  A2A - "How do agents discover and talk to each other?" │
 │                                                                             │
 │  09_CONTEXT      │  MCP - "What is objectively true?"                       │
 │                                                                             │
